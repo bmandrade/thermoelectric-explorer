@@ -19,6 +19,7 @@ from thermoelectric.transport import (
     TransportParams,
     electrical_conductivity,
     fermi_window,
+    interior_mu_grid,
     mott_seebeck,
     power_factor,
     seebeck_coefficient,
@@ -386,6 +387,66 @@ class TestResultObjects:
         assert sweep.conductivity.shape == (30,)
         assert sweep.power_factor.shape == (30,)
         assert np.allclose(sweep.mu_eV, mu_grid)
+
+
+# --------------------------------------------------------------------------
+# interior_mu_grid (display helper)
+# --------------------------------------------------------------------------
+
+class TestInteriorMuGrid:
+    def test_stays_inset_from_the_energy_grid_edges(self):
+        """The interior grid must not reach the energy-grid boundaries.
+
+        WHY: the whole purpose of the helper is to keep the Fermi window
+        off the edges, where truncation would spike every moment. So the
+        returned grid must start strictly above the first energy point and
+        end strictly below the last, by at least the low-temperature floor
+        margin.
+
+        GIVEN a DOS on [0.01, 12] eV at room temperature,
+        WHEN an interior mu grid is built,
+        THEN its ends are inset from the energy-grid edges.
+        """
+        energy_eV, dos = _free_electron_dos()
+        result = _dos_result(energy_eV, dos, mu_eV=5.0)
+        grid = interior_mu_grid(result, temperature_K=300.0, n=50)
+        assert grid[0] > energy_eV[0] + 0.25
+        assert grid[-1] < energy_eV[-1] - 0.25
+        assert grid.size == 50
+
+    def test_margin_widens_with_temperature(self):
+        """A higher temperature must inset the grid further.
+
+        WHY: the Fermi window broadens with temperature, so a correct
+        margin must grow with T; otherwise a hot sweep would still clip the
+        window at the edges. This checks the margin actually scales rather
+        than being a fixed constant.
+
+        GIVEN the same DOS,
+        WHEN interior grids are built at 100 K and at 900 K,
+        THEN the hot grid starts at a higher energy (a wider inset).
+        """
+        energy_eV, dos = _free_electron_dos()
+        result = _dos_result(energy_eV, dos, mu_eV=5.0)
+        cold = interior_mu_grid(result, temperature_K=100.0, n=50)
+        hot = interior_mu_grid(result, temperature_K=900.0, n=50)
+        assert hot[0] > cold[0]
+
+    def test_rejects_a_grid_too_narrow_for_the_margin(self):
+        """A grid narrower than twice the margin must raise ValueError.
+
+        WHY: if no interior range survives the edge margins, there is no
+        valid sweep; failing loudly is better than returning an empty or
+        inverted grid.
+
+        GIVEN a very narrow energy grid at high temperature,
+        WHEN an interior mu grid is requested,
+        THEN a ValueError is raised.
+        """
+        energy_eV = np.linspace(5.0, 5.4, 50)
+        result = _dos_result(energy_eV, np.sqrt(energy_eV), mu_eV=5.2)
+        with pytest.raises(ValueError):
+            interior_mu_grid(result, temperature_K=900.0, n=50)
 
 
 # --------------------------------------------------------------------------

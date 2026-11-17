@@ -35,7 +35,12 @@ from quantum_dos.constants import SILVER_ELECTRON_DENSITY_M3
 from quantum_dos.models import QuantumBox
 from quantum_dos.physics import calculate_dos
 
-from .transport import TransportParams, thermoelectric_point, thermoelectric_sweep
+from .transport import (
+    TransportParams,
+    interior_mu_grid,
+    thermoelectric_point,
+    thermoelectric_sweep,
+)
 
 __all__ = ["build_parser", "main"]
 
@@ -197,8 +202,9 @@ def _run(args: argparse.Namespace) -> int:
         )
 
         if args.sweep:
-            mu_grid = np.linspace(dos.energy_eV[0], dos.energy_eV[-1],
-                                  args.sweep_points)
+            # Sweep an interior mu window so the grid-edge truncation of the
+            # Fermi window does not produce a spurious boundary peak.
+            mu_grid = interior_mu_grid(dos, args.temperature, n=args.sweep_points)
             result = thermoelectric_sweep(
                 dos, mu_grid, args.temperature, tau_s=args.tau
             )

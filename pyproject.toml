@@ -41,6 +41,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+gui = [
+    "matplotlib>=3.7",
+]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
@@ -48,6 +51,7 @@ dev = [
 
 [project.scripts]
 thermoelectric = "thermoelectric.cli:main"
+thermoelectric-gui = "thermoelectric.gui:main"
 
 [project.urls]
 Repository = "https://github.com/bmandrade/thermoelectric-explorer"

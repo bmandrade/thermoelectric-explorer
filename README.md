@@ -95,9 +95,11 @@ confinement signature:
 
 ```python
 import numpy as np
-from thermoelectric import thermoelectric_sweep
+from thermoelectric import thermoelectric_sweep, interior_mu_grid
 
-mu_grid = np.linspace(dos.energy_eV[0], dos.energy_eV[-1], 300)
+# interior_mu_grid stays clear of the energy-grid edges, where the Fermi
+# window would be truncated and spike the curves (a numerical artifact).
+mu_grid = interior_mu_grid(dos, temperature_K=300.0, n=300)
 sweep = thermoelectric_sweep(dos, mu_grid, temperature_K=300.0)
 peak = int(np.argmax(sweep.power_factor))
 print(sweep.mu_eV[peak], sweep.power_factor[peak])
@@ -121,6 +123,22 @@ thermoelectric --lx 5 --ly 5 --lz 5 --mass 1.0 --sigma 0.05 \
 
 Run `thermoelectric --help` for the full list of options.
 
+### Interactive GUI
+
+An interactive window plots the S / σ / PF chemical-potential sweep and
+updates live as you drag sliders for the box geometry, effective mass,
+temperature, and broadening. It needs the `[gui]` extra (matplotlib):
+
+```bash
+pip install -e ".[gui]"
+thermoelectric-gui
+```
+
+On very new Python/Tk combinations (e.g. Python 3.14) matplotlib's
+default TkAgg backend has a slider bug; the GUI automatically prefers a
+Qt backend if one is installed (`pip install PyQt5`). You can force a
+backend with the `MPLBACKEND` environment variable.
+
 ## Public API
 
 | Function | Returns | Notes |
@@ -134,6 +152,7 @@ Run `thermoelectric --help` for the full list of options.
 | `power_factor(dos_result, params)` | PF | arb. units |
 | `thermoelectric_point(dos_result, params)` | `ThermoelectricResult` | all three at one (µ, T) |
 | `thermoelectric_sweep(dos_result, mu_grid_eV, temperature_K, tau_s=None)` | `ThermoelectricSweep` | curves vs µ |
+| `interior_mu_grid(dos_result, temperature_K, n=200)` | µ array | sweep grid inset from the grid edges |
 
 Invalid input (T ≤ 0, τ ≤ 0, µ outside the energy grid, mismatched
 arrays) raises `ValueError`; asserts are reserved for internal

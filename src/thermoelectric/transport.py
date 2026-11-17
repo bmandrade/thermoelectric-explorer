@@ -85,6 +85,7 @@ __all__ = [
     "thermoelectric_point",
     "thermoelectric_sweep",
     "mott_seebeck",
+    "interior_mu_grid",
 ]
 
 #: Boltzmann constant in eV/K. Numerically this also equals kB/e in
@@ -576,6 +577,62 @@ def thermoelectric_point(
         mu_eV=mu_eV,
         temperature_K=temperature_K,
     )
+
+
+def interior_mu_grid(
+    dos_result: DOSResult, temperature_K: float, n: int = 200
+) -> np.ndarray:
+    """
+    A chemical-potential grid that stays clear of the energy-grid edges.
+
+    The transport moments integrate the Fermi window (−∂f/∂E), which has
+    a width of a few ``kB*T`` around ``mu``. If ``mu`` is taken right up to
+    the first or last energy-grid point, that window is truncated by the
+    edge and every moment is biased, producing a spurious spike in S, σ and
+    PF at the boundary. This helper returns a linear ``mu`` grid inset from
+    both edges by a temperature-dependent margin (ten ``kB*T``, at least
+    0.3 eV), so a sweep over it shows the physical interior behaviour rather
+    than the truncation artifact.
+
+    This is a convenience for building display/analysis sweeps; it changes
+    no physics -- the transport functions themselves integrate exactly what
+    they are given.
+
+    Parameters
+    ----------
+    dos_result : DOSResult
+        The density of states whose energy grid sets the available range.
+    temperature_K : float
+        Temperature, in kelvin. Must be > 0. Sets the edge margin.
+    n : int, optional
+        Number of chemical-potential points. Default 200.
+
+    Returns
+    -------
+    np.ndarray
+        ``n`` chemical-potential values, in eV, inset from the grid edges.
+
+    Raises
+    ------
+    ValueError
+        If the temperature is non-positive, or if the margin leaves no
+        interior range (the energy grid is narrower than twice the margin).
+    """
+    _validate_temperature(temperature_K)
+    energy_eV = np.asarray(dos_result.energy_eV, dtype=float)
+    _validate_arrays(energy_eV, np.asarray(dos_result.dos, dtype=float))
+
+    kT_eV = (BOLTZMANN / EV_TO_J) * temperature_K
+    margin_eV = max(0.3, 10.0 * kT_eV)
+    lo = float(energy_eV[0]) + margin_eV
+    hi = float(energy_eV[-1]) - margin_eV
+    if lo >= hi:
+        raise ValueError(
+            "the energy grid is too narrow for an interior sweep at "
+            f"T = {temperature_K:g} K (needs a margin of {margin_eV:g} eV at "
+            "each edge). Widen the grid (increase e_max_eV) or lower T."
+        )
+    return np.linspace(lo, hi, n)
 
 
 def thermoelectric_sweep(
