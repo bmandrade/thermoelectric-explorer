@@ -8,3 +8,6 @@ venv/
 htmlcov/
 dist/
 build/
+
+# example output figures
+*.png

@@ -22,6 +22,7 @@ from .transport import (
     TransportParams,
     electrical_conductivity,
     fermi_window,
+    interior_mu_grid,
     mott_seebeck,
     power_factor,
     seebeck_coefficient,
@@ -44,6 +45,7 @@ __all__ = [
     "power_factor",
     "thermoelectric_point",
     "thermoelectric_sweep",
+    "interior_mu_grid",
 ]
 
 __version__ = "0.1.0"
