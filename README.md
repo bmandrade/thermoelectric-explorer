@@ -139,6 +139,28 @@ default TkAgg backend has a slider bug; the GUI automatically prefers a
 Qt backend if one is installed (`pip install PyQt5`). You can force a
 backend with the `MPLBACKEND` environment variable.
 
+### Examples
+
+The `examples/` directory contains runnable studies of the size
+dependence (each prints a summary and, with the `[gui]` extra, saves a
+figure):
+
+- `confinement_seebeck.py` — bulk vs confined box, compared via the
+  absolute (scale-free) Seebeck coefficient.
+- `size_scan.py` — S, σ, PF versus Lz at **fixed** chemical potential:
+  confinement alone *reduces* σ and PF (you lose states), with quantum-size
+  oscillations as sub-band edges cross µ.
+- `optimal_doping.py` — S and the per-volume power factor versus Lz when
+  the doping is **re-optimized** at each size: the per-volume optimal power
+  factor *rises* with confinement (the Hicks–Dresselhaus enhancement),
+  which the fixed-µ scan does not show. Its docstring explains why the
+  optimization is restricted to the lightly-doped regime and normalized per
+  volume — both honest limitations of the bare free-electron/CRTA model.
+
+Together the last two make the central point: confinement enhances the
+*achievable* thermoelectric response, but only if the carrier
+concentration is tuned to exploit the sharper density of states.
+
 ## Public API
 
 | Function | Returns | Notes |
