@@ -16,6 +16,14 @@ Public API (no matplotlib dependency)::
     print(result.seebeck_uV_per_K)   # absolute, microvolts/kelvin
 """
 
+from .figure_of_merit import (
+    ThermoelectricSI,
+    ZTResult,
+    absolute_transport,
+    figure_of_merit,
+    lattice_thermal_conductivity,
+    lorenz_number,
+)
 from .transport import (
     ThermoelectricResult,
     ThermoelectricSweep,
@@ -46,6 +54,12 @@ __all__ = [
     "thermoelectric_point",
     "thermoelectric_sweep",
     "interior_mu_grid",
+    "ThermoelectricSI",
+    "ZTResult",
+    "absolute_transport",
+    "lorenz_number",
+    "lattice_thermal_conductivity",
+    "figure_of_merit",
 ]
 
 __version__ = "0.1.0"

@@ -156,10 +156,41 @@ figure):
   which the fixed-µ scan does not show. Its docstring explains why the
   optimization is restricted to the lightly-doped regime and normalized per
   volume — both honest limitations of the bare free-electron/CRTA model.
+- `dimensional_crossover.py` — the figure of merit **ZT** versus confinement
+  size for 3-D (flat), 2-D and 1-D geometries: ZT rises as the box is
+  confined (to ≈1.2 for a 1-D wire here), driven by both the sharper DOS
+  and the boundary-suppressed lattice thermal conductivity.
 
-Together the last two make the central point: confinement enhances the
+Together these make the central point: confinement enhances the
 *achievable* thermoelectric response, but only if the carrier
 concentration is tuned to exploit the sharper density of states.
+
+## Figure of merit (ZT)
+
+The `thermoelectric.figure_of_merit` module adds the absolute transport
+needed for the dimensionless figure of merit
+ZT = S²σT / (κ_e + κ_lattice). Given a relaxation time τ (seconds) it
+returns σ in S/m, κ_e in W/m/K (normalizing the DOS and including the
+free-electron group velocity), models the lattice thermal conductivity
+with phonon boundary scattering (κ_lattice falls as the confined
+dimension shrinks), and combines them into ZT. The absolute scales are
+validated by the Wiedemann–Franz law (κ_e/σT ≈ 2.44×10⁻⁸ W·Ω/K², an
+oracle test).
+
+```python
+from quantum_dos import QuantumBox, calculate_dos
+from thermoelectric import figure_of_merit
+
+box = QuantumBox(10.0, 1.0, 1.0, 1.0)          # a quantum wire
+dos = calculate_dos(box, sigma_eV=0.05, electron_density_m3=5.86e28)
+zt = figure_of_merit(dos, box=box, temperature_K=300.0,
+                     tau_s=1e-14, broadening_eV=0.05, mu_eV=0.6)
+print(zt.zt, zt.conductivity_S_per_m, zt.kappa_lattice_W_per_mK)
+```
+
+ZT here is an order-of-magnitude model (CRTA, free-electron bands, a
+simple boundary-scattering κ_lattice with illustrative parameters), not a
+prediction for a specific material.
 
 ## Public API
 
@@ -175,6 +206,10 @@ concentration is tuned to exploit the sharper density of states.
 | `thermoelectric_point(dos_result, params)` | `ThermoelectricResult` | all three at one (µ, T) |
 | `thermoelectric_sweep(dos_result, mu_grid_eV, temperature_K, tau_s=None)` | `ThermoelectricSweep` | curves vs µ |
 | `interior_mu_grid(dos_result, temperature_K, n=200)` | µ array | sweep grid inset from the grid edges |
+| `absolute_transport(dos_result, *, box, temperature_K, tau_s, broadening_eV, mu_eV=None)` | `ThermoelectricSI` | σ (S/m), S (µV/K), κ_e (W/m/K) |
+| `lattice_thermal_conductivity(size_nm, *, kappa_bulk_W_per_mK=1.5, phonon_mfp_nm=5.0)` | float | boundary-scattering κ_lattice |
+| `figure_of_merit(dos_result, *, box, temperature_K, tau_s, broadening_eV, mu_eV=None, kappa_bulk_W_per_mK=1.5, phonon_mfp_nm=5.0)` | `ZTResult` | ZT and its ingredients |
+| `lorenz_number(thermoelectric_si)` | float | κ_e/σT (Wiedemann–Franz check) |
 
 Invalid input (T ≤ 0, τ ≤ 0, µ outside the energy grid, mismatched
 arrays) raises `ValueError`; asserts are reserved for internal
@@ -203,9 +238,11 @@ factor" direction test.
 - **Free-electron parabolic bands.** The v²∝E weighting assumes a single
   parabolic band; this is a pedagogical/qualitative model, not a
   replacement for a DFT + BoltzTraP2 calculation.
-- **No full ZT.** The figure of merit ZT = S²σT/κ needs the lattice
-  thermal conductivity, which a DOS-based electronic model cannot
-  provide. This package computes the electronic power factor, never ZT.
+- **ZT uses a model lattice conductivity.** The figure of merit (in
+  `figure_of_merit`) relies on a simple phonon boundary-scattering
+  κ_lattice and an assumed relaxation time τ, so ZT is an
+  order-of-magnitude model, not a first-principles prediction for a
+  specific material.
 - **Inherits the DOS model's limits** (confinement thresholds, Gaussian
   broadening, finite-box enumeration) from the Quantum DOS Explorer.
 
