@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "thermoelectric-explorer"
+version = "0.1.0"
+description = "Seebeck coefficient, electrical conductivity and power factor of a low-dimensional electron gas (CRTA), built on the Quantum DOS Explorer."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Thermoelectric Explorer contributors" },
+]
+keywords = [
+    "thermoelectric",
+    "Seebeck coefficient",
+    "power factor",
+    "transport distribution function",
+    "quantum confinement",
+    "low-dimensional",
+    "nanoscience",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "numpy>=1.24",
+    # The density of states this package consumes comes from the Quantum
+    # DOS Explorer. It is not on PyPI; install it from its repository
+    # first (see README), e.g.
+    #   pip install "quantum-dos-explorer @ git+https://github.com/<you>/quantum-dos-explorer"
+    "quantum-dos-explorer",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
+[project.scripts]
+thermoelectric = "thermoelectric.cli:main"
+
+[project.urls]
+Repository = "https://github.com/REPLACE_ME/thermoelectric-explorer"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
