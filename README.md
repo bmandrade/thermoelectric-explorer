@@ -125,9 +125,15 @@ Run `thermoelectric --help` for the full list of options.
 
 ### Interactive GUI
 
-An interactive window plots the S / σ / PF chemical-potential sweep and
-updates live as you drag sliders for the box geometry, effective mass,
-temperature, and broadening. It needs the `[gui]` extra (matplotlib):
+An interactive window plots four chemical-potential sweeps — S (µV/K),
+absolute σ (S/m), the thermal conductivities κ_e and κ_lattice (W/m/K),
+and the figure of merit **ZT** — and updates live as you drag sliders for
+the box geometry, effective mass, temperature, broadening, the relaxation
+time τ, and the lattice parameters (κ_bulk, phonon mean free path). The
+Fermi level and the peak-ZT (optimal doping) point are marked, and a panel
+reports S/σ/κ_e/ZT at the Fermi level and the optimal ZT. Shrinking a box
+dimension lowers κ_lattice and sharpens the DOS, so you can watch ZT rise.
+It needs the `[gui]` extra (matplotlib):
 
 ```bash
 pip install -e ".[gui]"
