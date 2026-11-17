@@ -3,7 +3,7 @@
 Compute the **Seebeck coefficient**, **electrical conductivity**, and
 **power factor** of a low-dimensional electron gas, in the constant
 relaxation-time approximation (CRTA), from a density of states produced
-by the [Quantum DOS Explorer](https://github.com/REPLACE_ME/quantum-dos-explorer).
+by the [Quantum DOS Explorer](https://github.com/bmandrade/quantum-dos-explorer).
 
 All three parameters are moments of the **transport distribution
 function** Σ(E) against the Fermi window (−∂f/∂E). The package has no
@@ -64,10 +64,10 @@ Install that first, then this package:
 
 ```bash
 # 1. the density-of-states dependency
-pip install "git+https://github.com/REPLACE_ME/quantum-dos-explorer"
+pip install "git+https://github.com/bmandrade/quantum-dos-explorer"
 
 # 2. this package (editable, with test extras)
-git clone https://github.com/REPLACE_ME/thermoelectric-explorer
+git clone https://github.com/bmandrade/thermoelectric-explorer
 cd thermoelectric-explorer
 pip install -e ".[dev]"
 ```

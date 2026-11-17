@@ -50,7 +50,7 @@ dev = [
 thermoelectric = "thermoelectric.cli:main"
 
 [project.urls]
-Repository = "https://github.com/REPLACE_ME/thermoelectric-explorer"
+Repository = "https://github.com/bmandrade/thermoelectric-explorer"
 
 [tool.setuptools.packages.find]
 where = ["src"]
